@@ -1,0 +1,87 @@
+---
+title: "book"
+author: "Chunmei Zhu"
+date: "October 12, 2017"
+output: html_document
+---
+
+
+three books in one subject
+at least one book has more than one author
+title, authors, xx,xx,xx -your interesting
+three files to store book info to .html, .xml, .json
+
+R - load info from each sources into separate R data frames
+hand in three source files and .rmd
+
+###load data from HTML file to R
+
+```{r library, include=FALSE}
+library(XML)
+library(RCurl)
+library(xlsx)
+library(rjson)
+library(stringr)
+
+#File location
+setwd("D:/CUNY_SPS_DA/607_Data_Aq/week7/")
+```
+
+# Read text from HTML file
+
+```{r html, include=FALSE}
+extractHTML<-htmlTreeParse('books.html', useInternalNodes = TRUE)
+extractHTML #check inputs
+
+htmldf = unlist(xpathApply(extractHTML, '//p', xmlValue))
+#htmldf #check values
+
+#content1 = gsub('\\n', ' ', content) #same as unlist()
+
+#build a data frame to store the data
+book1<-htmldf[2:9]
+book2<-htmldf[10:17]
+book3<-htmldf[18:25]
+htmldat<-cbind(book1,book2,book3)
+
+#data clearning: remore an empty row from the dataframe
+htmldat<-htmldat[-c(2),]
+htmldat<-data.frame(t(htmldat))
+
+#give a header for the table
+names(htmldat) <- c("Titles","Authors","Catogory","Price","ISBN", "Publisher","Pub_Date")
+htmldat
+
+#str(htmldat)
+```
+
+# Read text from XML file
+
+```{r xml, include=FALSE}
+extractXML<-xmlParse('books.xml')
+#extractXML #check inputs
+
+#build a data frame to store the data
+xmldat<-xmlToDataFrame(extractXML)
+xmldat #check values
+
+```
+
+# Read text from JSON file
+
+```{r json, include=FALSE}
+extractJSON<-fromJSON(file ="books.json")
+#extractJSON #check inputs
+
+jsondf <- lapply(extractJSON, function(x) {
+  x[sapply(x, is.null)] <- NA
+  unlist(x)
+})
+jsondat<-as.data.frame(do.call("rbind", jsondf))
+jsondat
+
+
+
+```
+
+
